@@ -1,0 +1,16 @@
+# This is a parameters file.
+# Empty lines or lines starting with '#' are ignored.
+# All data lines are of the form 'key=value'
+
+# When updating the position, now much noise to add?
+positionUpdateNoise = 0.0
+
+# InitialPosition
+initX = 5
+initY = 1
+
+numberOfColors = 2
+wall = 0
+normalField = 3
+
+enemies = enemy_handler.py

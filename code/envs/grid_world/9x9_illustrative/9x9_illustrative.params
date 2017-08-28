@@ -1,0 +1,18 @@
+# This is a parameters file.
+# Empty lines or lines starting with '#' are ignored.
+# All data lines are of the form 'key=value'
+
+# When updating the position, now much noise to add?
+positionUpdateNoise = 0.0
+
+# InitialPosition
+initX = 1
+initY = 1
+
+wall = 0
+normalField = 5
+numberOfColors = 4
+colorOrder = [2, 4, 3, 1]
+
+bombs = [(1,4), (5,3), (4,6), (8,5)]
+
