@@ -5,6 +5,8 @@ Create and activate an environment using virtualenv.
 
 `
 virtualenv shielded-learning
+'
+'
 source shielded-learning/bin/activate
 `
 
