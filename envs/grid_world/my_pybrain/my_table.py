@@ -1,6 +1,6 @@
-from pybrain.rl.learners.valuebased.interface import ActionValueInterface
-from pybrain.structure.modules import Table, Module
-from pybrain.structure.parametercontainer import ParameterContainer
+from pybrain3.rl.learners.valuebased.interface import ActionValueInterface
+from pybrain3.structure.modules import Table, Module
+from pybrain3.structure.parametercontainer import ParameterContainer
 from scipy import where
 from random import choice
 import numpy as np

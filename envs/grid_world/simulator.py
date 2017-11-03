@@ -11,15 +11,15 @@ import itertools
 import random
 from PIL import Image
 import os, pygame, pygame.locals
-from pybrain.rl.environments import Environment
-from pybrain.rl.environments import Task
-from pybrain.rl.agents import LearningAgent
-from pybrain.rl.experiments import Experiment
+from pybrain3.rl.environments import Environment
+from pybrain3.rl.environments import Task
+from pybrain3.rl.agents import LearningAgent
+from pybrain3.rl.experiments import Experiment
 from my_pybrain.my_explorer import MyUCBExplorer
 from my_pybrain.my_explorer import MyGreedyExplorer
 from my_pybrain.my_table import MyActionValueTable
 from my_pybrain.my_learner import MyQ, SARSA
-from pybrain.utilities import abstractMethod
+from pybrain3.utilities import abstractMethod
 
 import numpy as np
 from itertools import product

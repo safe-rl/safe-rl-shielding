@@ -1,4 +1,4 @@
-from pybrain.rl.explorers.explorer import Explorer
+from pybrain3.rl.explorers.explorer import Explorer
 from copy import deepcopy
 from scipy import where
 from random import choice, random

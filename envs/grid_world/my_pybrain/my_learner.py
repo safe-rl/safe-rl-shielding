@@ -1,5 +1,5 @@
-from pybrain.rl.learners.valuebased.valuebased import ValueBasedLearner
-from pybrain.rl.learners.valuebased import SARSA
+from pybrain3.rl.learners.valuebased.valuebased import ValueBasedLearner
+from pybrain3.rl.learners.valuebased import SARSA
 class MyQ(ValueBasedLearner):
 
     offPolicy = True
