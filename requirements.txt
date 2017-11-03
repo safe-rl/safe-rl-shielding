@@ -14,12 +14,11 @@ Markdown==2.6.9
 mujoco-py==0.5.7
 numpy==1.13.1
 olefile==0.44
-opencv==1.0.1
 opencv-python==3.3.0.9
 pachi-py==0.0.21
 Pillow==4.2.1
 protobuf==3.4.0
-PyBrain==0.3.1
+PyBrain3
 pygame==1.9.3
 pyglet==1.2.4
 PyOpenGL==3.1.0
