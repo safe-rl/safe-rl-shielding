@@ -1,108 +1,115 @@
 #include "ProductDfa.h"
 #include <iostream>
+#include <cstdlib>
+#include <numeric>
+#include <vector>
 
 ProductDfa::ProductDfa(std::vector<Dfa*> args) :
+// TODO fdh: possible optimizations:
+//  * skip all nodes that are not connected / not connected to initial nodes
+//  * reduce number of for-loops by setting initial_, final_ and edges in single for-loop
 Dfa(0, 0, 0)
 {
+    // create combinable dfas by renaming variables etc. 
     std::vector<Dfa*> dfas = create_combinable_dfas(args);
-    
-    std::list<ProductDfaNode*> working_set;
-    std::set<Node*> done;
-    std::set<Node*> to_delete;
 
-    for (Dfa* dfa : dfas) {       
-        std::vector<Node*> init_nodes = initial_nodes();
-        if (init_nodes.empty()) {
-            for (auto node : dfa->initial_nodes()) {
-                ProductDfaNode* p_node = new ProductDfaNode();
-                p_node->subnodes_.push_back(node);
-                p_node->initial_ = true;
-                add_node(p_node);
-            }
-        } else {
-            for (auto main_node : init_nodes) {
-                for (auto node : dfa->initial_nodes()) {
-                    ProductDfaNode* p_node = new ProductDfaNode((ProductDfaNode*)main_node);
-                    p_node->subnodes_.push_back(node);
-                    p_node->initial_ = true;
-                    add_node(p_node);
-                }
-            }
-            
-            for (auto node : init_nodes) {
-                node->initial_ = false;
-                to_delete.insert(node);
+    // Extract nodes from all dfas.
+    // These form the underlying structure of the final dfa
+    std::vector<std::vector<Node*>> subnodes;
+    for (Dfa* dfa : dfas) {
+		std::vector<Node*> v;
+	    for( auto node : dfa->nodes_){
+			v.push_back(node);
+		}
+        subnodes.push_back(v);
+    }
+    // Create cartesian product of subnodes of different dfas. Each combination of subnodes from
+    // different dfas represents a node in the product dfa
+    std::vector<std::vector<Node*>> node_combinations = create_cartesian(subnodes);
+    // create pdfa node w/ subnodes for each element in cartesian product
+    for (auto node_v : node_combinations){
+        // create a new ProductDfaNode and fill it
+        ProductDfaNode* pdfa_node = new ProductDfaNode();
+        std::set<Node*> subnode_set;
+        for(auto node : node_v){
+            pdfa_node->subnodes_.push_back(node);
+            subnode_set.insert(node);
+        }
+        // add the pdfa node to the pdfa
+        pdfa_node = (ProductDfaNode*) add_node(pdfa_node);
+        // store the subnodes that form this pdfa node in a map
+        subnode_node_map[subnode_set] = pdfa_node;
+    }
+
+    // set pdfa node initial flag *only* if all subnodes are initial
+    for (Node* node : nodes_){
+        ProductDfaNode* pdfa_node = (ProductDfaNode*) node;
+        bool initial_ = true;
+        for( auto n : pdfa_node->subnodes_){
+            if(!n->initial_){
+                initial_ = false;
+                break;
             }
         }
-        
-        for (auto node : initial_nodes()) {
-            std::cout << "Intial node: " << node->to_string() << std::endl;
-            working_set.push_back((ProductDfaNode*)node);
+        pdfa_node->initial_ = initial_;
+    }
+
+    // Set pdfa node final flag if *a* subnode is final. These are accepting states/nodes.
+    for (Node* node : nodes_){
+        ProductDfaNode* pdfa_node = (ProductDfaNode*) node;
+        bool final_ = false;
+        for( auto n : pdfa_node->subnodes_){
+            if(n->final_){
+                final_ = true;
+                break;
+            }
         }
-        
-        while (!working_set.empty()) {
-            ProductDfaNode* node = working_set.front();
-            working_set.pop_front();
-            if (done.find(node) != done.end()) {
-                continue;
+        pdfa_node->final_ = final_;
+    }
+
+    // Combine nodes edges
+    for (Node* node : nodes_){
+        ProductDfaNode* pdfa_node = (ProductDfaNode*) node;
+        // create a set of edges for all of this pdfa nodes' underlying nodes edges
+        std::vector<std::vector<Dfa::Edge*>> combo_edges;
+        // loop all subnodes/underlying nodes
+        for (auto subnode : pdfa_node->subnodes_){
+            std::vector<Edge*> edges;
+            // extract all edges
+            for( auto edge : subnode->edges_){
+                edges.push_back(edge);
             }
-            
-            done.insert(node);
-                        
-            Node* subnode = node->subnodes_.back(); // newly added subnode .. edges have to be added
-            
-            std::set<ProductDfaNode*> to_process;
-            if (node->edges_.empty()) {
-                for (auto edge : subnode->edges_) {
-                    ProductDfaNode* p_node = new ProductDfaNode();
-                    p_node->subnodes_.push_back(edge->target_);
-                    if (edge->target_->final_) {
-                        p_node->final_ = true;
-                    }
-                    p_node = (ProductDfaNode*) add_node(p_node);
-                    add_edge(node, p_node, edge->label_);
-                
-                    to_process.insert(p_node);
-                }
-            } else {
-                std::set<Edge*> edges = node->edges_;
-                for (auto edge : edges) {
-                    
-                    for (auto subedge : subnode->edges_) {
-                        label_t combined = edge->label_.merge(subedge->label_);
-                        if (combined.valid) {
-                            ProductDfaNode* p_node = new ProductDfaNode((ProductDfaNode*) edge->target_);
-                            p_node->subnodes_.push_back(subedge->target_);
-                            if (subedge->target_->final_) {
-                                p_node->final_ = true;
-                            }
-                            p_node = (ProductDfaNode*) add_node(p_node);
-                            add_edge(node, p_node, combined);
-                    
-                            to_process.insert(p_node);
-                        }
-                    }
-                
-                    to_delete.insert(edge->target_); // will delete all incoming edges
-                }
-            }
-            
-            for (auto new_node : to_process) {
-                if (done.find(new_node) == done.end()) {                    
-                    working_set.push_back(new_node);
-                }
-            }
-            
-            
-        }        
-    
-        for (auto old_node : to_delete) {
-            remove_node(old_node);
+            combo_edges.push_back(edges);
         }
-        to_delete.clear();
-    }  
-    
-    
+        // create a cartesian product of outgoing edges for all subnodes of this pdfa node.
+        // Following these edges/transitions 'jointly' should make us end up in the relating pdfa
+        // state representing all underlying target nodes.
+        std::vector<std::vector<Edge*>> cart_edge = create_cartesian(combo_edges);
+        // loop over all 'joint' edges/transitions
+        for (auto combo_edge : cart_edge){
+            // collect all underlying target nodes in a set
+            std::set<Node*> subnode_targets;
+            label_t label;
+            // combine the labels for each transition into a single label
+            for(auto edge : combo_edge){
+                label.merge(edge->label_);
+                if(!label.valid){
+                    // TODO: how to deal with invalid label? This would mean that the input dfas
+                    // cannot be combined?
+                    std::cout << "Invalid label combination!" << std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                subnode_targets.insert(edge->target_);
+            }
+            // find target pdfa node by following underlying node set in 'reverse' subnode->node map
+            ProductDfaNode* target_node = subnode_node_map[subnode_targets];
+            // insert link from pdfa node to pdfa node w/ combined label
+            add_edge(pdfa_node, target_node, label);
+        }
+    }
+
+    // create all combinations of subnodes, pegging on some (the last) dfa 
+    // two inputs
     verify();
     minimize();
 }
@@ -160,6 +167,37 @@ std::vector<Dfa*> ProductDfa::create_combinable_dfas(std::vector<Dfa*> originals
     names_.insert(joint_output_vars.begin(), joint_output_vars.end());
    
     return converted;
+}
+
+std::vector<std::vector<Dfa::Edge*>> ProductDfa::create_cartesian( std::vector<std::vector<Edge*>>& v){
+    std::vector<std::vector<Edge*>> s = {{}};
+    for( const auto& u : v){
+        std::vector<std::vector<Edge*>> r;
+        for( const auto& x: s){
+            for( const auto y: u){
+                r.push_back(x);
+                r.back().push_back(y);
+            }
+        }
+        s = move(r);
+    }
+    return s;
+}
+
+
+std::vector<std::vector<Dfa::Node*>> ProductDfa::create_cartesian( std::vector<std::vector<Node*>>& v){
+    std::vector<std::vector<Node*>> s = {{}};
+    for( const auto& u : v){
+        std::vector<std::vector<Node*>> r;
+        for( const auto& x: s){
+            for( const auto y: u){
+                r.push_back(x);
+                r.back().push_back(y);
+            }
+        }
+        s = move(r);
+    }
+    return s;
 }
 
 std::string ProductDfa::ProductDfaNode::to_string() {

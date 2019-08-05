@@ -20,7 +20,7 @@ Dfa(0, spec->num_inputs_ + spec->num_outputs_, spec->num_outputs_ + 1)
     
     names_[num_inputs_ + num_outputs_] = "recovery__s";
     
-    std::vector<Node*> good_nodes;
+    std::vector<Node*> good_nodes; // nodes to stay in e.g. non-final nodes
     for (auto node : spec->nodes_) {
         if (!node->final_) good_nodes.push_back(node);
     }
