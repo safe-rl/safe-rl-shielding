@@ -92,7 +92,7 @@ Dfa(0, 0, 0)
             label_t label;
             // combine the labels for each transition into a single label
             for(auto edge : combo_edge){
-                label.merge(edge->label_);
+                label = label.merge(edge->label_);
                 if(!label.valid){
                     // TODO: how to deal with invalid label? This would mean that the input dfas
                     // cannot be combined?
