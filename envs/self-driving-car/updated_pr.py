@@ -20,10 +20,10 @@ import gym
 def send_email(body):
     import smtplib
 
-    gmail_user = 'sahabi'
-    gmail_pwd = 'b0nit0'
-    FROM = 'sahabi@gmail.com'
-    TO = 'malshiekh@utexas.edu'
+    gmail_user = ''
+    gmail_pwd = ''
+    FROM = ''
+    TO = ''
     SUBJECT = 'Found One!'
     TEXT = body
 
