@@ -124,7 +124,7 @@ public:
             edges_.clear();
         };
         
-        virtual bool operator==(Node& other) {
+        virtual bool operator ==(Node& other) {
             return id_ == other.id_;
         }
         

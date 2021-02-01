@@ -4,6 +4,8 @@
 #include <exception>
 #include <vector>
 #include <list>
+#include <map>
+#include <unordered_set>
 
 class ProductDfa : public Dfa
 {
@@ -21,8 +23,6 @@ public:
         ProductDfaNode(ProductDfaNode* node) :
         Dfa::Node(-1)
         {
-            initial_ = node->initial_;
-            final_ = node->final_;
             
             for (auto subnode : node->subnodes_) {
                 subnodes_.push_back(subnode);
@@ -53,11 +53,16 @@ public:
                 }
                 return true;
             } catch (...) {
+                std::cout << "Error while comparing nodes!" << std::endl;
                 return false;
             }
         }
     };
+    public:
+        std::map<std::set<Node*>, ProductDfaNode*> subnode_node_map;
 
     ProductDfa(std::vector<Dfa*> args);
     std::vector<Dfa*> create_combinable_dfas(std::vector<Dfa*> originals);
+    std::vector<std::vector<Edge*>> create_cartesian(std::vector<std::vector<Edge*>>&);
+    std::vector<std::vector<Node*>> create_cartesian(std::vector<std::vector<Node*>>&);
 };
