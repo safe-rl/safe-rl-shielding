@@ -14,7 +14,7 @@ Markdown==2.6.9
 mujoco-py==0.5.7
 numpy==1.13.1
 olefile==0.44
-opencv-python==3.3.0.9
+opencv-python==3.4.7.28
 Pillow==4.2.1
 protobuf==3.4.0
 PyBrain3
