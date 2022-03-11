@@ -15,7 +15,7 @@ mujoco-py==0.5.7
 numpy==1.13.1
 olefile==0.44
 opencv-python==3.3.0.9
-Pillow==4.2.1
+Pillow==9.0.1
 protobuf==3.4.0
 PyBrain3
 pygame==1.9.3
