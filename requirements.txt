@@ -12,7 +12,7 @@ imageio==2.2.0
 Keras==2.0.8
 Markdown==2.6.9
 mujoco-py==0.5.7
-numpy==1.13.1
+numpy==1.22.0
 olefile==0.44
 opencv-python==3.3.0.9
 Pillow==4.2.1
