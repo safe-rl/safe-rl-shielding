@@ -16,7 +16,7 @@ numpy==1.13.1
 olefile==0.44
 opencv-python==3.3.0.9
 Pillow==4.2.1
-protobuf==3.4.0
+protobuf==3.18.3
 PyBrain3
 pygame==1.9.3
 pyglet==1.2.4
